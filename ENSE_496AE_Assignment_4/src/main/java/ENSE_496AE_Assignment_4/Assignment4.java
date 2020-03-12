@@ -17,12 +17,13 @@ import java.util.Random;
  */
 public class Assignment4 {
     
-    private static long[] timeBetweenPrimes = new long[200];
+    private static long[] timeBetweenPrimes = new long[400];
     
     public static void main(String[] args){
         
         try {
             int[] primeNumbers = new int[200];
+            int[] primeNumbers2 = new int[400];
             int number;
             int counter = 0;
             long bigSeed = 2147483647;
@@ -78,10 +79,8 @@ public class Assignment4 {
             
             number = 0;
             
-            for (int i = 0; i < primeNumbers.length; i++){
+            for (int i = 0; i < primeNumbers2.length; i++){
 
-                
-                
                 if (checkIfPrime(number)){
                     
                     // check the time for identifying the prime
@@ -91,8 +90,8 @@ public class Assignment4 {
                     timeBetweenPrimes(number, i, before, after);
                     
                     // write the prime number to txt file
-                    primeNumbers[i] = number;
-                    write.write(primeNumbers[i] + " ");  
+                    primeNumbers2[i] = number;
+                    write.write(primeNumbers2[i] + " ");  
                     counter++;
                     if(counter == 10){
                         write.write("\n");
@@ -109,9 +108,9 @@ public class Assignment4 {
             write.write("\n");
             write.write("Times between Primes\n");
             
-            for(int i = 0; i < primeNumbers.length; i++){
+            for(int i = 0; i < primeNumbers2.length; i++){
                 
-                write.write("time for prime " + primeNumbers[i] + 
+                write.write("time for prime " + primeNumbers2[i] + 
                         ": " + timeBetweenPrimes[i] + "\n");
             }
             
