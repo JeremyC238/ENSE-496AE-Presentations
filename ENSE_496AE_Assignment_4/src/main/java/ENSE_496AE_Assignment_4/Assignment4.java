@@ -28,6 +28,7 @@ public class Assignment4 {
             int[] primeNumbers = new int[200]; // first requirement
             int[] primeNumbers2 = new int[2000]; // second requirement
             long bigSeed = 2147483647;
+            long secretKey = 0;
  
             // creates txt file
             File file1 = new File("PrimeNumbers.txt");
@@ -45,7 +46,7 @@ public class Assignment4 {
             FileWriter writeFile2 = new FileWriter(file2);
 
             // generate random number with a seed value
-            Random randomNumber = new Random(bigSeed); 
+            Random randomNumber = new Random(bigSeed);
 
             /*******************************************************************
              * First Requirement
@@ -71,6 +72,30 @@ public class Assignment4 {
             
             // compare the two files to see if they are the same
             compareFiles(file1, file2);
+            
+            /*******************************************************************
+             * Third Requirement
+            *******************************************************************/
+            
+            // Diffie-Hellman algorithm
+            secretKey = thirdRequirement();
+
+            /*******************************************************************
+             *  Fourth Requirement
+            *******************************************************************/
+            
+            // writes 200 random prime values based on secret key from third requirement 
+            writeFile1.write("\n");
+            writeFile1.write("Fourth Requirement\n");
+            writeFile2.write("\n");
+            writeFile2.write("Fourth Requirement\n");
+            
+            //random number from secret key
+            Random secretKeyRandomNumber = new Random(secretKey);
+            writeFile1.write("200 random prime numbers based on secret key value from third requirement\n");
+            writeFile2.write("200 random prime numbers based on secret key value from third requirement\n");
+            firstRequirement(primeNumbers, file1, writeFile1, secretKeyRandomNumber);
+            firstRequirement(primeNumbers, file2, writeFile2, secretKeyRandomNumber);
             
             writeFile1.close();
             writeFile2.close();
@@ -155,6 +180,46 @@ public class Assignment4 {
         } 
     }
     
+    public static long thirdRequirement(){
+        
+        // alice - private key a
+        // bob - private key b
+        // public keys - P, G
+        
+        long P = 23;
+        long G = 9;
+        long a = 4;
+        long b = 3;
+        long alicePublicKey;
+        long bobPublicKey;
+        long secretKeyAlice;
+        long secretKeyBob;
+        
+        // determine alices public key
+        System.out.printf("The private key for alice is: " + a + "\n");
+        alicePublicKey = power(G, a, P);
+        System.out.printf("Alices shared public value is: " + alicePublicKey + "\n");
+        
+        // determine bobs public key
+        System.out.printf("the private key for bob is: " + b + "\n");
+        bobPublicKey = power(G, b, P);
+        System.out.printf("Bobs shared public value is: " + bobPublicKey + "\n");
+        
+        // generateing the secret key
+        secretKeyAlice = power(bobPublicKey, a, P);
+        System.out.printf("Alices secret key is: " + secretKeyAlice + "\n");
+        secretKeyBob =  power(alicePublicKey, b, P);
+        System.out.printf("Bobs secret key is: " + secretKeyBob + "\n");
+        
+        // check if the secret keys are the same
+        if(secretKeyAlice == secretKeyBob)
+            System.out.printf("the secret key is: " + secretKeyAlice);
+        else
+            System.out.printf("error, the secret keys do not match!!");
+        
+        return secretKeyAlice;
+    }
+    
     public static boolean checkIfPrime(int number){
         
         boolean isPrime = true;
@@ -189,46 +254,47 @@ public class Assignment4 {
          
             int lineNum = 1;
 
-            while (line1 != null || line2 != null)
-            {
-                if(line1 == null || line2 == null)
-                {
+            while (line1 != null || line2 != null){
+                
+                if(line1 == null || line2 == null){
                     areEqual = false;
-
                     break;
                 }
-                else if(! line1.equalsIgnoreCase(line2))
-                {
+                else if(! line1.equalsIgnoreCase(line2)){
                     areEqual = false;
-
                     break;
                 }
 
                 line1 = reader1.readLine();
-
                 line2 = reader2.readLine();
 
                 lineNum++;
             }
 
-            if(areEqual)
-            {
+            if(areEqual){
                 System.out.println("Two files have same content.");
             }
-            else
-            {
+            else{
                 System.out.println("Two files have different content. They differ at line "+lineNum);
-
                 System.out.println("File1 has "+line1+" and File2 has "+line2+" at line "+lineNum);
             }
 
             reader1.close();
-
             reader2.close();
        
         }
         catch (IOException e){
             e.printStackTrace();
         } 
+    }
+    
+    public static long power(long a, long b, long P){
+        
+        // calculate the key value using a^b mod P
+        if (b == 1)
+            return a;
+        else {
+            return (long)(Math.pow(a, b) % P);
+        }  
     }
 }
