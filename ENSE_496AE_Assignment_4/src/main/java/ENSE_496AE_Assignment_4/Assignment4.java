@@ -10,7 +10,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
+import java.util.List;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -18,7 +22,7 @@ import java.util.Random;
  */
 public class Assignment4 {
     
-    private static long[] timeBetweenPrimes = new long[2000];
+    private static long[] timeBetweenPrimes = new long[100];
     private static long before;
     private static long after;
     
@@ -26,9 +30,10 @@ public class Assignment4 {
         
         try {
             int[] primeNumbers = new int[200]; // first requirement
-            int[] primeNumbers2 = new int[2000]; // second requirement
+            int[] primeNumbers2 = new int[100]; // second requirement
             long bigSeed = 2147483647;
             long secretKey = 0;
+            int count = 0;
  
             // creates txt file
             File file1 = new File("PrimeNumbers.txt");
@@ -70,18 +75,32 @@ public class Assignment4 {
             secondRequirement(primeNumbers2, file1, writeFile1);
             secondRequirement(primeNumbers2, file2, writeFile2);
             
+            writeFile1.write("\n");
+            writeFile2.write("\n");
+            
             // compare the two files to see if they are the same
-            compareFiles(file1, file2);
+            compareFiles(file1, file2, writeFile1, writeFile2);
+            
+            writeFile1.write("\n");
+            writeFile2.write("\n");
             
             /*******************************************************************
              * Third Requirement
             *******************************************************************/
             
-            // Diffie-Hellman algorithm
-            secretKey = thirdRequirement();
+            writeFile1.write("\n");
+            writeFile1.write("Third Requirement\n");
+            writeFile2.write("\n");
+            writeFile2.write("Third Requirement\n");
+            
+            // Diffie-Hellman algorithm, returns the secret key
+            secretKey = thirdRequirement(file1, writeFile1);
+            
+            writeFile1.write("\n");
+            writeFile2.write("\n");
 
             /*******************************************************************
-             *  Fourth Requirement
+             * Fourth Requirement
             *******************************************************************/
             
             // writes 200 random prime values based on secret key from third requirement 
@@ -97,6 +116,22 @@ public class Assignment4 {
             firstRequirement(primeNumbers, file1, writeFile1, secretKeyRandomNumber);
             firstRequirement(primeNumbers, file2, writeFile2, secretKeyRandomNumber);
             
+            /*******************************************************************
+             * Fifth Requirement
+            *******************************************************************/
+            
+            writeFile1.write("\n");
+            writeFile1.write("Fifth Requirement\n");
+            writeFile2.write("\n");
+            writeFile2.write("Fifth Requirement\n");
+            
+            // converts array of prime numbers to a list
+            List<Integer> primeNumbersList = Arrays.stream(primeNumbers).boxed().collect(Collectors.toList());
+
+            // shuffles and unshuffles the array
+            fifthRequirement(file1, writeFile1, primeNumbers, primeNumbersList, secretKey);
+            fifthRequirement(file2, writeFile2, primeNumbers, primeNumbersList, secretKey);
+
             writeFile1.close();
             writeFile2.close();
         }
@@ -180,7 +215,7 @@ public class Assignment4 {
         } 
     }
     
-    public static long thirdRequirement(){
+    public static long thirdRequirement(File FileName, FileWriter write){
         
         // alice - private key a
         // bob - private key b
@@ -192,32 +227,108 @@ public class Assignment4 {
         long b = 3;
         long alicePublicKey;
         long bobPublicKey;
-        long secretKeyAlice;
+        long secretKeyAlice = 0;
         long secretKeyBob;
         
-        // determine alices public key
-        System.out.printf("The private key for alice is: " + a + "\n");
-        alicePublicKey = power(G, a, P);
-        System.out.printf("Alices shared public value is: " + alicePublicKey + "\n");
-        
-        // determine bobs public key
-        System.out.printf("the private key for bob is: " + b + "\n");
-        bobPublicKey = power(G, b, P);
-        System.out.printf("Bobs shared public value is: " + bobPublicKey + "\n");
-        
-        // generateing the secret key
-        secretKeyAlice = power(bobPublicKey, a, P);
-        System.out.printf("Alices secret key is: " + secretKeyAlice + "\n");
-        secretKeyBob =  power(alicePublicKey, b, P);
-        System.out.printf("Bobs secret key is: " + secretKeyBob + "\n");
-        
-        // check if the secret keys are the same
-        if(secretKeyAlice == secretKeyBob)
-            System.out.printf("the secret key is: " + secretKeyAlice);
-        else
-            System.out.printf("error, the secret keys do not match!!");
+        try {
+            // determine alices public key
+            write.write("The private key for alice is: " + a + "\n");
+            alicePublicKey = power(G, a, P);
+            write.write("Alices shared public value is: " + alicePublicKey + "\n");
+
+            // determine bobs public key
+            write.write("the private key for bob is: " + b + "\n");
+            bobPublicKey = power(G, b, P);
+            write.write("Bobs shared public value is: " + bobPublicKey + "\n");
+
+            // generateing the secret key
+            secretKeyAlice = power(bobPublicKey, a, P);
+            write.write("Alices secret key is: " + secretKeyAlice + "\n");
+            secretKeyBob =  power(alicePublicKey, b, P);
+            write.write("Bobs secret key is: " + secretKeyBob + "\n");
+
+            // check if the secret keys are the same
+            if(secretKeyAlice == secretKeyBob)
+                write.write("the secret key is: " + secretKeyAlice);
+            else
+                write.write("error, the secret keys do not match!!");
+
+            return secretKeyAlice;
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        } 
         
         return secretKeyAlice;
+    }
+    
+    public static void fifthRequirement(File FileName, FileWriter write, int[] primeNumbers, List<Integer> primeNumbersList, long secretKey){
+        
+        int count = 0;
+        
+        try {
+            // prints the contents of printNumbers array before its shuffled
+            write.write("\n");
+            write.write("before shuffle: \n" );
+
+            for (int i = 0; i < primeNumbers.length; i++){
+                write.write(primeNumbers[i] + " ");
+                count++;
+                if (count == 10){
+                    write.write("\n");
+                    count = 0;
+                }
+            }
+            write.write("\n");
+
+            // shuffle the values in primeNumbersList and print them 
+            write.write("shuffle order\n");
+
+            Collections.shuffle(primeNumbersList, new Random(secretKey));
+
+            for (int i = 0; i < primeNumbersList.size(); i++){
+                write.write(primeNumbersList.get(i) + " ");
+                count++;
+                if (count == 10){
+                    write.write("\n");
+                    count = 0;
+                }
+            }
+            write.write("\n");
+
+            // unshuffle the values in primeNumberList to there original order
+            write.write("unshuffled order\n");
+
+            primeNumbersList = unShuffle(primeNumbersList, new Random(secretKey));
+
+            for (int i = 0; i < primeNumbersList.size(); i++){
+                write.write(primeNumbersList.get(i) + " ");
+                count++;
+                if (count == 10){
+                    write.write("\n");
+                    count = 0;
+                }
+            }
+            write.write("\n");
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        } 
+    }
+    
+    public static List<Integer> unShuffle(List<Integer> primeNumbersList, Random secretKey){
+        
+        int[] primeNumbers = new int[primeNumbersList.size()];
+        
+        for(int i = primeNumbers.length; i >= 1; i--){
+            primeNumbers[i - 1] = secretKey.nextInt(i);
+        }
+        
+        for(int i = 0; i < primeNumbers.length; i++){
+            Collections.swap(primeNumbersList, i, primeNumbers[i]);
+        }
+        
+        return primeNumbersList;
     }
     
     public static boolean checkIfPrime(int number){
@@ -241,7 +352,7 @@ public class Assignment4 {
         timeBetweenPrimes[index] = after - before;
     }
     
-    public static void compareFiles(File fileName1, File fileName2){
+    public static void compareFiles(File fileName1, File fileName2, FileWriter write1, FileWriter write2){
         
         try {
             BufferedReader reader1 = new BufferedReader(new FileReader(fileName1));
@@ -272,11 +383,14 @@ public class Assignment4 {
             }
 
             if(areEqual){
-                System.out.println("Two files have same content.");
+                write1.write("Two files have same content.");
+                write2.write("Two files have same content.");
             }
             else{
-                System.out.println("Two files have different content. They differ at line "+lineNum);
-                System.out.println("File1 has "+line1+" and File2 has "+line2+" at line "+lineNum);
+                write1.write("Two files have different content. They differ at line "+lineNum);
+                write1.write("File1 has "+line1+" and File2 has "+line2+" at line "+lineNum);
+                write2.write("Two files have different content. They differ at line "+lineNum);
+                write2.write("File1 has "+line1+" and File2 has "+line2+" at line "+lineNum);
             }
 
             reader1.close();
