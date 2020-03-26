@@ -10,11 +10,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.List;
-import java.util.Collections;
-import java.util.stream.Collectors;
+import java.util.Scanner;
 
 /**
  *
@@ -33,11 +32,12 @@ public class Assignment4 {
             int[] primeNumbers2 = new int[100]; // second requirement
             long bigSeed = 2147483647;
             long secretKey = 0;
-            int count = 0;
  
             // creates txt file
             File file1 = new File("PrimeNumbers.txt");
             File file2 = new File("PrimeNumbers.doc");
+            File file3 = new File("AudioBytes.txt");
+            File file4 = new File("ShuffledAudioBytes.txt");
 
             // check if file generates properly
             if(!file1.exists()){
@@ -46,13 +46,19 @@ public class Assignment4 {
             if(!file2.exists()){
                 file2.createNewFile();
             }
+            if(!file3.exists()){
+                file3.createNewFile();
+            }
+            if(!file4.exists()){
+                file4.createNewFile();
+            }
 
             FileWriter writeFile1 = new FileWriter(file1);
             FileWriter writeFile2 = new FileWriter(file2);
 
             // generate random number with a seed value
             Random randomNumber = new Random(bigSeed);
-
+       
             /*******************************************************************
              * First Requirement
             *******************************************************************/
@@ -120,17 +126,8 @@ public class Assignment4 {
              * Fifth Requirement
             *******************************************************************/
             
-            writeFile1.write("\n");
-            writeFile1.write("Fifth Requirement\n");
-            writeFile2.write("\n");
-            writeFile2.write("Fifth Requirement\n");
-            
-            // converts array of prime numbers to a list
-            List<Integer> primeNumbersList = Arrays.stream(primeNumbers).boxed().collect(Collectors.toList());
-
-            // shuffles and unshuffles the array
-            fifthRequirement(file1, writeFile1, primeNumbers, primeNumbersList, secretKey);
-            fifthRequirement(file2, writeFile2, primeNumbers, primeNumbersList, secretKey);
+            // shuffles and unshuffles the
+            fifthRequirement(file3, file4);
 
             writeFile1.close();
             writeFile2.close();
@@ -215,122 +212,6 @@ public class Assignment4 {
         } 
     }
     
-    public static long thirdRequirement(File FileName, FileWriter write){
-        
-        // alice - private key a
-        // bob - private key b
-        // public keys - P, G
-        
-        long P = 23;
-        long G = 9;
-        long a = 4;
-        long b = 3;
-        long alicePublicKey;
-        long bobPublicKey;
-        long secretKeyAlice = 0;
-        long secretKeyBob;
-        
-        try {
-            // determine alices public key
-            write.write("The private key for alice is: " + a + "\n");
-            alicePublicKey = power(G, a, P);
-            write.write("Alices shared public value is: " + alicePublicKey + "\n");
-
-            // determine bobs public key
-            write.write("the private key for bob is: " + b + "\n");
-            bobPublicKey = power(G, b, P);
-            write.write("Bobs shared public value is: " + bobPublicKey + "\n");
-
-            // generateing the secret key
-            secretKeyAlice = power(bobPublicKey, a, P);
-            write.write("Alices secret key is: " + secretKeyAlice + "\n");
-            secretKeyBob =  power(alicePublicKey, b, P);
-            write.write("Bobs secret key is: " + secretKeyBob + "\n");
-
-            // check if the secret keys are the same
-            if(secretKeyAlice == secretKeyBob)
-                write.write("the secret key is: " + secretKeyAlice);
-            else
-                write.write("error, the secret keys do not match!!");
-
-            return secretKeyAlice;
-        }
-        catch (IOException e){
-            e.printStackTrace();
-        } 
-        
-        return secretKeyAlice;
-    }
-    
-    public static void fifthRequirement(File FileName, FileWriter write, int[] primeNumbers, List<Integer> primeNumbersList, long secretKey){
-        
-        int count = 0;
-        
-        try {
-            // prints the contents of printNumbers array before its shuffled
-            write.write("\n");
-            write.write("before shuffle: \n" );
-
-            for (int i = 0; i < primeNumbers.length; i++){
-                write.write(primeNumbers[i] + " ");
-                count++;
-                if (count == 10){
-                    write.write("\n");
-                    count = 0;
-                }
-            }
-            write.write("\n");
-
-            // shuffle the values in primeNumbersList and print them 
-            write.write("shuffle order\n");
-
-            Collections.shuffle(primeNumbersList, new Random(secretKey));
-
-            for (int i = 0; i < primeNumbersList.size(); i++){
-                write.write(primeNumbersList.get(i) + " ");
-                count++;
-                if (count == 10){
-                    write.write("\n");
-                    count = 0;
-                }
-            }
-            write.write("\n");
-
-            // unshuffle the values in primeNumberList to there original order
-            write.write("unshuffled order\n");
-
-            primeNumbersList = unShuffle(primeNumbersList, new Random(secretKey));
-
-            for (int i = 0; i < primeNumbersList.size(); i++){
-                write.write(primeNumbersList.get(i) + " ");
-                count++;
-                if (count == 10){
-                    write.write("\n");
-                    count = 0;
-                }
-            }
-            write.write("\n");
-        }
-        catch (IOException e){
-            e.printStackTrace();
-        } 
-    }
-    
-    public static List<Integer> unShuffle(List<Integer> primeNumbersList, Random secretKey){
-        
-        int[] primeNumbers = new int[primeNumbersList.size()];
-        
-        for(int i = primeNumbers.length; i >= 1; i--){
-            primeNumbers[i - 1] = secretKey.nextInt(i);
-        }
-        
-        for(int i = 0; i < primeNumbers.length; i++){
-            Collections.swap(primeNumbersList, i, primeNumbers[i]);
-        }
-        
-        return primeNumbersList;
-    }
-    
     public static boolean checkIfPrime(int number){
         
         boolean isPrime = true;
@@ -395,11 +276,57 @@ public class Assignment4 {
 
             reader1.close();
             reader2.close();
-       
         }
         catch (IOException e){
             e.printStackTrace();
         } 
+    } 
+    
+    public static long thirdRequirement(File FileName, FileWriter write){
+        
+        // alice - private key a
+        // bob - private key b
+        // public keys - P, G
+        
+        long P = 23; //23
+        long G = 9; //9
+        long a = 4; //4
+        long b = 3; //3
+        long alicePublicKey;
+        long bobPublicKey;
+        long secretKeyAlice = 0;
+        long secretKeyBob;
+        
+        try {
+            // determine alices public key
+            write.write("The private key for alice is: " + a + "\n");
+            alicePublicKey = power(G, a, P);
+            write.write("Alices shared public value is: " + alicePublicKey + "\n");
+
+            // determine bobs public key
+            write.write("the private key for bob is: " + b + "\n");
+            bobPublicKey = power(G, b, P);
+            write.write("Bobs shared public value is: " + bobPublicKey + "\n");
+
+            // generateing the secret key
+            secretKeyAlice = power(bobPublicKey, a, P);
+            write.write("Alices secret key is: " + secretKeyAlice + "\n");
+            secretKeyBob =  power(alicePublicKey, b, P);
+            write.write("Bobs secret key is: " + secretKeyBob + "\n");
+
+            // check if the secret keys are the same
+            if(secretKeyAlice == secretKeyBob)
+                write.write("the secret key is: " + secretKeyAlice);
+            else
+                write.write("error, the secret keys do not match!!");
+
+            return secretKeyAlice;
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        } 
+        
+        return secretKeyAlice;
     }
     
     public static long power(long a, long b, long P){
@@ -411,4 +338,112 @@ public class Assignment4 {
             return (long)(Math.pow(a, b) % P);
         }  
     }
+    
+    public static void fifthRequirement(File file3, File file4){
+   
+        try {
+
+            Scanner nextByte = new Scanner(file3);
+            List<String> byteValues = new ArrayList<>();
+            int counter = 0;
+            int i = 0;
+            //int j = 0;
+            int secretKey = 4894308;
+            //Random secretKeyRandomNumber = new Random(secretKey);
+            
+            // fills the array with values
+            while(nextByte.hasNext()){
+                byteValues.add(nextByte.next());
+            }
+            
+            nextByte.reset();
+            nextByte.close();
+            
+            nextByte = new Scanner(file3);
+            counter = 0;
+            
+            // shuffles the array and then unshuffles it
+            byteValues = ShuffleBytes(byteValues, secretKey);
+            byteValues = DeShuffle(byteValues, secretKey);
+                        
+            // prints the shuffled array
+            for(int j = 0; j < byteValues.size(); j++){
+                System.out.printf(byteValues.get(j) + " ");
+                counter++;
+                        if(counter == 16){
+                            System.out.print("\n");
+                            //writeFile4.write("\n");
+                            counter = 0;
+                        }
+            }
+            
+            nextByte.reset();
+            nextByte.close();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+
+            System.out.printf("failed");
+        }
+    }
+    
+    public static int[] GetShuffleExchanges(int size, int key)
+    {
+        
+        // creates the array of swapping index positions and RNG with key
+        int[] exchanges = new int[size - 1];
+        Random rand = new Random(key);
+        
+        // fills the array going backwards for the size of the byte array
+        for (int i = size - 1; i > 0; i--)
+        {
+            int n = rand.nextInt(i + 1);
+            exchanges[size - 1 - i] = n;
+        }
+        
+        // returns the array 
+        return exchanges;
+    }
+
+    public static List<String> ShuffleBytes(List<String> toShuffle, int key){
+        
+        // creates the array of swapping index positions
+        int size = toShuffle.size();
+        int[] exchanges = GetShuffleExchanges(size, key);
+        
+        // swaps values in the byte array going backwards
+        for (int i = size - 1; i > 0; i--)
+        {
+            int n = exchanges[size - 1 - i];
+            String tmp = toShuffle.get(i);
+            toShuffle.set(i, toShuffle.get(n));
+            toShuffle.set(n, tmp);
+        }
+        
+        // returns shuffled array
+        return toShuffle;
+    }
+    
+    public static List<String> DeShuffle(List<String> shuffled, int key){
+        
+        // creates the array of swapping index positions
+        int size = shuffled.size();
+        int[] exchanges = GetShuffleExchanges(size, key);
+        
+        // swaps values in the byte array going forwards
+        for (int i = 1; i < size; i++)
+        {
+            int n = exchanges[size - 1 - i];
+            String tmp = shuffled.get(i);
+            shuffled.set(i, shuffled.get(n));
+            shuffled.set(n, tmp);
+        }
+        
+        // returns original array
+        return shuffled;
+    }
+
+    
 }
+
+
