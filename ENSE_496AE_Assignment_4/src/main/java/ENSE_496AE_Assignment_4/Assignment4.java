@@ -37,7 +37,7 @@ public class Assignment4 {
             File file1 = new File("PrimeNumbers.txt");
             File file2 = new File("PrimeNumbers.doc");
             File file3 = new File("AudioBytes.txt");
-            File file4 = new File("ShuffledAudioBytes.txt");
+            
 
             // check if file generates properly
             if(!file1.exists()){
@@ -48,9 +48,6 @@ public class Assignment4 {
             }
             if(!file3.exists()){
                 file3.createNewFile();
-            }
-            if(!file4.exists()){
-                file4.createNewFile();
             }
 
             FileWriter writeFile1 = new FileWriter(file1);
@@ -127,7 +124,7 @@ public class Assignment4 {
             *******************************************************************/
             
             // shuffles and unshuffles the
-            fifthRequirement(file3, file4);
+            fifthRequirement(file3);
 
             writeFile1.close();
             writeFile2.close();
@@ -339,17 +336,15 @@ public class Assignment4 {
         }  
     }
     
-    public static void fifthRequirement(File file3, File file4){
+    public static void fifthRequirement(File file3){
    
         try {
 
             Scanner nextByte = new Scanner(file3);
             List<String> byteValues = new ArrayList<>();
             int counter = 0;
-            int i = 0;
-            //int j = 0;
             int secretKey = 4894308;
-            //Random secretKeyRandomNumber = new Random(secretKey);
+            
             
             // fills the array with values
             while(nextByte.hasNext()){
