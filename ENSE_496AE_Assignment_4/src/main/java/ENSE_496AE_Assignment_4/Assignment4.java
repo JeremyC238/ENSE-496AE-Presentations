@@ -37,7 +37,9 @@ public class Assignment4 {
             // creates txt file
             File file1 = new File("PrimeNumbers.txt");
             File file2 = new File("PrimeNumbers.doc");
-            File file3 = new File("AudioBytes.txt");
+            File file3 = new File("OriginalAudioBytes.txt");
+            File file4 = new File("ShuffledAudioBytes.txt");
+            File file5 = new File("UnshuffledAudioBytes.txt");
             
             // check if file generates properly
             if(!file1.exists()){
@@ -48,6 +50,12 @@ public class Assignment4 {
             }
             if(!file3.exists()){
                 file3.createNewFile();
+            }
+            if(!file4.exists()){
+                file4.createNewFile();
+            }
+            if(!file5.exists()){
+                file5.createNewFile();
             }
 
             FileWriter writeFile1 = new FileWriter(file1);
@@ -63,8 +71,8 @@ public class Assignment4 {
             writeFile1.write("First Requirement\n");
             writeFile2.write("First Requirement\n");
             
-            firstRequirement(primeNumbers, file1, writeFile1, randomNumber);
-            firstRequirement(primeNumbers, file2, writeFile2, randomNumber);
+            firstRequirement(primeNumbers, writeFile1, randomNumber);
+            firstRequirement(primeNumbers, writeFile2, randomNumber);
             
             /*******************************************************************
              * Second Requirement
@@ -75,8 +83,8 @@ public class Assignment4 {
             writeFile2.write("\n");
             writeFile2.write("Second Requirement\n");
             
-            secondRequirement(primeNumbers2, file1, writeFile1);
-            secondRequirement(primeNumbers2, file2, writeFile2);
+            secondRequirement(primeNumbers2, writeFile1);
+            secondRequirement(primeNumbers2, writeFile2);
             
             writeFile1.write("\n");
             writeFile2.write("\n");
@@ -111,20 +119,15 @@ public class Assignment4 {
             writeFile1.write("Fourth Requirement\n");
             writeFile2.write("\n");
             writeFile2.write("Fourth Requirement\n");
-            
-            //random number from secret key
-            Random secretKeyRandomNumber = new Random(secretKey);
-            writeFile1.write("200 random prime numbers based on secret key value from third requirement\n");
-            writeFile2.write("200 random prime numbers based on secret key value from third requirement\n");
-            firstRequirement(primeNumbers, file1, writeFile1, secretKeyRandomNumber);
-            firstRequirement(primeNumbers, file2, writeFile2, secretKeyRandomNumber);
+
+            fourthRequirement(primeNumbers, secretKey, writeFile1, writeFile2);
             
             /*******************************************************************
              * Fifth Requirement
             *******************************************************************/
             
             // shuffles and unshuffles the
-            fifthRequirement(file3);
+            fifthRequirement(file3, file4, file5);
 
             writeFile1.close();
             writeFile2.close();
@@ -134,7 +137,7 @@ public class Assignment4 {
         } 
     }
     
-    public static void firstRequirement(int[] primeNumbers, File FileName, FileWriter write, Random randomNumber){
+    public static void firstRequirement(int[] primeNumbers, FileWriter write, Random randomNumber){
         
         int number = 0;
         int counter = 0;
@@ -164,8 +167,9 @@ public class Assignment4 {
         } 
     }
     
-    public static void secondRequirement(int[] primeNumbers, File FileName, FileWriter write){
+    public static void secondRequirement(int[] primeNumbers, FileWriter write){
         
+        // number is the initial starting value
         int number = 1000000;
         int counter = 0;
         int timeSum = 0;
@@ -181,7 +185,7 @@ public class Assignment4 {
                     after = System.nanoTime();
                     timeBetweenPrimes(number, i, before, after);
                     
-                    // calculate total time at eac prime
+                    // calculate total time at each prime
                     timeSum += timeBetweenPrimes[i];
                     timeAtEachPrime[i] = timeSum;
                     
@@ -342,16 +346,27 @@ public class Assignment4 {
         }  
     }
     
-    public static void fifthRequirement(File file3){
+    public static void fourthRequirement(int[] primeNumbers, long secretKey, FileWriter writeFile1, FileWriter writeFile2) throws IOException{
+        
+        //random number from secret key
+        Random secretKeyRandomNumber = new Random(secretKey);
+        writeFile1.write("200 random prime numbers based on secret key value from third requirement\n");
+        writeFile2.write("200 random prime numbers based on secret key value from third requirement\n");
+        firstRequirement(primeNumbers, writeFile1, secretKeyRandomNumber);
+        firstRequirement(primeNumbers, writeFile2, secretKeyRandomNumber);
+    }
+    
+    public static void fifthRequirement(File file3, File file4, File file5){
    
         try {
 
             Scanner nextByte = new Scanner(file3);
+            FileWriter writeFile4 = new FileWriter(file4);
+            
             List<String> byteValues = new ArrayList<>();
             int counter = 0;
             int secretKey = 4894308;
-            
-            
+
             // fills the array with values
             while(nextByte.hasNext()){
                 byteValues.add(nextByte.next());
@@ -361,23 +376,43 @@ public class Assignment4 {
             nextByte.close();
             
             nextByte = new Scanner(file3);
-            counter = 0;
-            
-            // shuffles the array and then unshuffles it
+
+            // shuffles the array
             byteValues = ShuffleBytes(byteValues, secretKey);
-            byteValues = DeShuffle(byteValues, secretKey);
-                        
+                     
             // prints the shuffled array
-            for(int j = 0; j < byteValues.size(); j++){
-                System.out.printf(byteValues.get(j) + " ");
+            for(int i = 0; i < byteValues.size(); i++){
+                //System.out.printf(byteValues.get(j) + " ");
+                writeFile4.write(byteValues.get(i) + " ");
                 counter++;
                         if(counter == 16){
-                            System.out.print("\n");
-                            //writeFile4.write("\n");
+                            //System.out.print("\n");
+                            writeFile4.write("\n");
                             counter = 0;
                         }
             }
             
+            writeFile4.close();
+            
+            FileWriter writeFile5 = new FileWriter(file5);
+            counter = 0;
+            
+            // unshuffles the array
+            byteValues = DeShuffle(byteValues, secretKey);
+            
+            // prints the unshuffled array
+            for(int i = 0; i < byteValues.size(); i++){
+                //System.out.printf(byteValues.get(j) + " ");
+                writeFile5.write(byteValues.get(i) + " ");
+                counter++;
+                        if(counter == 16){
+                            //System.out.print("\n");
+                            writeFile5.write("\n");
+                            counter = 0;
+                        }
+            }
+
+            writeFile5.close();
             nextByte.reset();
             nextByte.close();
         }
