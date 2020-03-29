@@ -22,6 +22,7 @@ import java.util.Scanner;
 public class Assignment4 {
     
     private static long[] timeBetweenPrimes = new long[100];
+    private static long[] timeAtEachPrime = new long[100];
     private static long before;
     private static long after;
     
@@ -38,7 +39,6 @@ public class Assignment4 {
             File file2 = new File("PrimeNumbers.doc");
             File file3 = new File("AudioBytes.txt");
             
-
             // check if file generates properly
             if(!file1.exists()){
                 file1.createNewFile();
@@ -168,6 +168,7 @@ public class Assignment4 {
         
         int number = 1000000;
         int counter = 0;
+        int timeSum = 0;
         
         try {
             for (int i = 0; i < primeNumbers.length; i++){
@@ -179,6 +180,10 @@ public class Assignment4 {
                     checkIfPrime(number);
                     after = System.nanoTime();
                     timeBetweenPrimes(number, i, before, after);
+                    
+                    // calculate total time at eac prime
+                    timeSum += timeBetweenPrimes[i];
+                    timeAtEachPrime[i] = timeSum;
                     
                     // write the prime number to txt file
                     primeNumbers[i] = number;
@@ -196,12 +201,13 @@ public class Assignment4 {
             }
             
             write.write("\n");
-            write.write("Times between Primes\n");
+            write.write("Times between Primes" + "              " + "Time at each Prime\n");
             
+            // prints the time between primes and time at each prime
             for(int i = 0; i < primeNumbers.length; i++){
                 
                 write.write("time for prime " + primeNumbers[i] + 
-                        ": " + timeBetweenPrimes[i] + "\n");
+                        ": " + timeBetweenPrimes[i] + " | " + timeAtEachPrime[i] + "\n");
             }
         }
         catch (IOException e){
