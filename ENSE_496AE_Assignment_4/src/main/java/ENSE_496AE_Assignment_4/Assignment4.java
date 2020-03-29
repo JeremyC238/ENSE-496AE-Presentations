@@ -365,6 +365,13 @@ public class Assignment4 {
             
             List<String> byteValues = new ArrayList<>();
             int counter = 0;
+            
+            //TEST WITH LARGER KEY THEN POSSIBLE TO GENERATE WITH THIRD REQUIREMENT
+            // parameters used
+            // P = 10160539
+            // G = 5
+            // a = 13
+            // b = 11
             int secretKey = 4894308;
 
             // fills the array with values
